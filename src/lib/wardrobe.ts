@@ -165,7 +165,8 @@ export async function fileToDataUrl(file: File, max = 900): Promise<string> {
 }
 
 export function dataUrlToBlob(dataUrl: string): Blob {
-  const [head, body] = dataUrl.split(",");
+  const head = dataUrl.slice(0, dataUrl.indexOf(","));
+  const body = dataUrl.slice(dataUrl.indexOf(",") + 1);
   const mime = head.match(/:(.*?);/)?.[1] ?? "image/jpeg";
   const bin = atob(body);
   const bytes = new Uint8Array(bin.length);
