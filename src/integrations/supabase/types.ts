@@ -14,7 +14,162 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      outfits: {
+        Row: {
+          created_at: string
+          id: string
+          is_favorite: boolean
+          item_ids: string[]
+          occasion: string | null
+          rating: number | null
+          rationale: string | null
+          source: string
+          styling_tip: string | null
+          title: string
+          user_id: string
+          weather: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_favorite?: boolean
+          item_ids?: string[]
+          occasion?: string | null
+          rating?: number | null
+          rationale?: string | null
+          source?: string
+          styling_tip?: string | null
+          title?: string
+          user_id: string
+          weather?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_favorite?: boolean
+          item_ids?: string[]
+          occasion?: string | null
+          rating?: number | null
+          rationale?: string | null
+          source?: string
+          styling_tip?: string | null
+          title?: string
+          user_id?: string
+          weather?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      style_preferences: {
+        Row: {
+          avoid: string[]
+          favorite_colors: string[]
+          notes: string | null
+          onboarded: boolean
+          sizes: string | null
+          styles: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avoid?: string[]
+          favorite_colors?: string[]
+          notes?: string | null
+          onboarded?: boolean
+          sizes?: string | null
+          styles?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avoid?: string[]
+          favorite_colors?: string[]
+          notes?: string | null
+          onboarded?: boolean
+          sizes?: string | null
+          styles?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wardrobe_items: {
+        Row: {
+          category: string
+          color_hex: string | null
+          created_at: string
+          formality: string | null
+          id: string
+          image_path: string
+          last_worn: string | null
+          material: string | null
+          name: string
+          notes: string | null
+          pattern: string | null
+          primary_color: string | null
+          seasons: string[]
+          subtype: string | null
+          tags: string[]
+          user_id: string
+          wear_count: number
+        }
+        Insert: {
+          category?: string
+          color_hex?: string | null
+          created_at?: string
+          formality?: string | null
+          id?: string
+          image_path: string
+          last_worn?: string | null
+          material?: string | null
+          name?: string
+          notes?: string | null
+          pattern?: string | null
+          primary_color?: string | null
+          seasons?: string[]
+          subtype?: string | null
+          tags?: string[]
+          user_id: string
+          wear_count?: number
+        }
+        Update: {
+          category?: string
+          color_hex?: string | null
+          created_at?: string
+          formality?: string | null
+          id?: string
+          image_path?: string
+          last_worn?: string | null
+          material?: string | null
+          name?: string
+          notes?: string | null
+          pattern?: string | null
+          primary_color?: string | null
+          seasons?: string[]
+          subtype?: string | null
+          tags?: string[]
+          user_id?: string
+          wear_count?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
