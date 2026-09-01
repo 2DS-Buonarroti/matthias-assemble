@@ -102,7 +102,10 @@ function WardrobePage() {
   async function remove(item: WardrobeItem) {
     await supabase.storage.from("wardrobe").remove([item.image_path]);
     const { error } = await supabase.from("wardrobe_items").delete().eq("id", item.id);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     setEditing(null);
     qc.invalidateQueries({ queryKey: ["wardrobe"] });
     toast.success("Item removed");
@@ -120,7 +123,10 @@ function WardrobePage() {
         tags: item.tags,
       })
       .eq("id", item.id);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     setEditing(null);
     qc.invalidateQueries({ queryKey: ["wardrobe"] });
     toast.success("Saved");

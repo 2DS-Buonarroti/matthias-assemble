@@ -7,7 +7,7 @@ export function ItemThumb({
   name,
   className,
 }: {
-  url?: string;
+  url?: string | undefined;
   name: string;
   className?: string;
 }) {
