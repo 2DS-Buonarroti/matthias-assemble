@@ -225,12 +225,20 @@ export const askStylist = createServerFn({ method: "POST" })
 
 /* ------------------------------- outfit check ------------------------------- */
 
+export type OutfitAlternative = {
+  title: string;
+  item_ids: string[];
+  why: string;
+};
+
 export type OutfitCheck = {
   score: number;
   verdict: string;
+  detected: string[];
   works: string[];
   improve: string[];
   swap_suggestion: string;
+  alternatives: OutfitAlternative[];
 };
 
 export const checkOutfit = createServerFn({ method: "POST" })
@@ -249,18 +257,23 @@ export const checkOutfit = createServerFn({ method: "POST" })
       {
         role: "system",
         content:
-          "You review a photo of someone's outfit as a kind, encouraging stylist. Never comment on body, weight " +
-          "or appearance — only the clothes. Reply with ONLY JSON: " +
-          '{"score":number 1-10,"verdict":string (one warm sentence),"works":string[] (2-3 things that work),' +
-          '"improve":string[] (1-3 gentle suggestions),"swap_suggestion":string (one swap using an item from their wardrobe list, by name)}',
+          "You review a photo of someone's outfit as a kind, encouraging stylist. Never comment on body, weight, " +
+          "face or appearance — only the clothes. First look carefully at the photo and list the garments you " +
+          "can actually see. Then build 1-2 alternative outfits using ONLY the wardrobe items provided, by their " +
+          "exact ids — never invent items, and if the wardrobe is empty return an empty alternatives array. " +
+          "Reply with ONLY JSON: " +
+          '{"score":number 1-10,"verdict":string (one warm sentence),"detected":string[] (garments visible in the photo),' +
+          '"works":string[] (2-3 things that work),"improve":string[] (1-3 gentle suggestions),' +
+          '"swap_suggestion":string (one swap using an item from their wardrobe, by name),' +
+          '"alternatives":[{"title":string,"item_ids":string[] (2-5 real wardrobe ids),"why":string (one sentence)}]}',
       },
       {
         role: "user",
         content: [
           {
             type: "text",
-            text: `Context: ${data.context || "no extra context"}.\nWardrobe available: ${JSON.stringify(
-              data.items.map((i) => ({ name: i.name, category: i.category, color: i.primary_color })),
+            text: `Context: ${data.context || "no extra context"}.\nWardrobe available (use these ids): ${JSON.stringify(
+              data.items,
             )}`,
           },
           { type: "image_url", image_url: { url: data.imageDataUrl } },
@@ -269,13 +282,25 @@ export const checkOutfit = createServerFn({ method: "POST" })
     ]);
 
     const parsed = parseJson<Partial<OutfitCheck>>(raw);
+    const valid = new Set(data.items.map((i) => i.id));
+    const score = typeof parsed.score === "number" ? Math.max(1, Math.min(10, Math.round(parsed.score))) : 7;
     return {
-      score: typeof parsed.score === "number" ? parsed.score : 7,
+      score,
       verdict: parsed.verdict || "Nice work.",
+      detected: Array.isArray(parsed.detected) ? parsed.detected.slice(0, 8) : [],
       works: parsed.works ?? [],
       improve: parsed.improve ?? [],
       swap_suggestion: parsed.swap_suggestion || "",
+      alternatives: (Array.isArray(parsed.alternatives) ? parsed.alternatives : [])
+        .map((a) => ({
+          title: a?.title || "Another way to wear it",
+          item_ids: (a?.item_ids ?? []).filter((id) => valid.has(id)),
+          why: a?.why || "",
+        }))
+        .filter((a) => a.item_ids.length >= 2)
+        .slice(0, 2),
     };
+
   });
 
 /* --------------------------------- shopping --------------------------------- */
