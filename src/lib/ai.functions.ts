@@ -49,6 +49,25 @@ function parseJson<T>(raw: string): T {
 
 /* ---------------------------------- tagging --------------------------------- */
 
+const SEASONS = ["spring", "summer", "autumn", "winter"];
+
+const CATEGORY_ALIASES: Record<string, string> = {
+  shirt: "top", shirts: "top", tshirt: "top", "t-shirt": "top", blouse: "top", sweater: "top",
+  knitwear: "top", tops: "top", pants: "bottom", trousers: "bottom", jeans: "bottom",
+  skirt: "bottom", shorts: "bottom", bottoms: "bottom", dresses: "dress", jumpsuit: "dress",
+  coat: "outerwear", jacket: "outerwear", blazer: "outerwear", shoe: "shoes", boots: "shoes",
+  sneakers: "shoes", bags: "bag", handbag: "bag", accessories: "accessory", jewelry: "accessory",
+};
+
+const CATEGORIES = ["top", "bottom", "dress", "outerwear", "shoes", "bag", "accessory", "other"];
+
+function normalizeCategory(raw?: string) {
+  const c = (raw ?? "").trim().toLowerCase();
+  if (CATEGORIES.includes(c)) return c;
+  return CATEGORY_ALIASES[c] ?? "other";
+}
+
+
 export type GarmentAnalysis = {
   name: string;
   category: string;
@@ -87,16 +106,19 @@ export const analyzeGarment = createServerFn({ method: "POST" })
     const parsed = parseJson<Partial<GarmentAnalysis>>(raw);
     return {
       name: parsed.name || "Wardrobe item",
-      category: parsed.category || "other",
+      category: normalizeCategory(parsed.category),
       subtype: parsed.subtype || "",
-      primary_color: parsed.primary_color || "",
-      color_hex: parsed.color_hex || "#B0B0B0",
-      pattern: parsed.pattern || "solid",
-      material: parsed.material || "",
-      seasons: Array.isArray(parsed.seasons) ? parsed.seasons : [],
-      formality: parsed.formality || "casual",
-      tags: Array.isArray(parsed.tags) ? parsed.tags.slice(0, 6) : [],
+      primary_color: (parsed.primary_color || "").toLowerCase(),
+      color_hex: /^#[0-9a-f]{6}$/i.test(parsed.color_hex ?? "") ? parsed.color_hex! : "#B0B0B0",
+      pattern: (parsed.pattern || "solid").toLowerCase(),
+      material: (parsed.material || "").toLowerCase(),
+      seasons: Array.isArray(parsed.seasons)
+        ? parsed.seasons.map((s) => String(s).toLowerCase()).filter((s) => SEASONS.includes(s))
+        : [],
+      formality: (parsed.formality || "casual").toLowerCase(),
+      tags: Array.isArray(parsed.tags) ? parsed.tags.map((t) => String(t).toLowerCase()).slice(0, 6) : [],
     };
+
   });
 
 /* ------------------------------ recommendations ----------------------------- */
