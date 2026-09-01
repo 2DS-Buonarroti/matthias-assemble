@@ -49,6 +49,25 @@ function parseJson<T>(raw: string): T {
 
 /* ---------------------------------- tagging --------------------------------- */
 
+const SEASONS = ["spring", "summer", "autumn", "winter"];
+
+const CATEGORY_ALIASES: Record<string, string> = {
+  shirt: "top", shirts: "top", tshirt: "top", "t-shirt": "top", blouse: "top", sweater: "top",
+  knitwear: "top", tops: "top", pants: "bottom", trousers: "bottom", jeans: "bottom",
+  skirt: "bottom", shorts: "bottom", bottoms: "bottom", dresses: "dress", jumpsuit: "dress",
+  coat: "outerwear", jacket: "outerwear", blazer: "outerwear", shoe: "shoes", boots: "shoes",
+  sneakers: "shoes", bags: "bag", handbag: "bag", accessories: "accessory", jewelry: "accessory",
+};
+
+const CATEGORIES = ["top", "bottom", "dress", "outerwear", "shoes", "bag", "accessory", "other"];
+
+function normalizeCategory(raw?: string) {
+  const c = (raw ?? "").trim().toLowerCase();
+  if (CATEGORIES.includes(c)) return c;
+  return CATEGORY_ALIASES[c] ?? "other";
+}
+
+
 export type GarmentAnalysis = {
   name: string;
   category: string;
