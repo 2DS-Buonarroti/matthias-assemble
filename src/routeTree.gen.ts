@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CheckRouteImport } from './routes/check'
 import { Route as OutfitsRouteImport } from './routes/outfits'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as StylistRouteImport } from './routes/stylist'
 import { Route as TodayRouteImport } from './routes/today'
 import { Route as WardrobeRouteImport } from './routes/wardrobe'
@@ -37,6 +38,11 @@ const OutfitsRoute = OutfitsRouteImport.update({
   path: '/outfits',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StylistRoute = StylistRouteImport.update({
   id: '/stylist',
   path: '/stylist',
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/check': typeof CheckRoute
   '/outfits': typeof OutfitsRoute
+  '/profile': typeof ProfileRoute
   '/stylist': typeof StylistRoute
   '/today': typeof TodayRoute
   '/wardrobe': typeof WardrobeRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/check': typeof CheckRoute
   '/outfits': typeof OutfitsRoute
+  '/profile': typeof ProfileRoute
   '/stylist': typeof StylistRoute
   '/today': typeof TodayRoute
   '/wardrobe': typeof WardrobeRoute
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/check': typeof CheckRoute
   '/outfits': typeof OutfitsRoute
+  '/profile': typeof ProfileRoute
   '/stylist': typeof StylistRoute
   '/today': typeof TodayRoute
   '/wardrobe': typeof WardrobeRoute
@@ -84,16 +93,31 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/check' | '/outfits' | '/stylist' | '/today' | '/wardrobe'
+    | '/'
+    | '/auth'
+    | '/check'
+    | '/outfits'
+    | '/profile'
+    | '/stylist'
+    | '/today'
+    | '/wardrobe'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/' | '/auth' | '/check' | '/outfits' | '/stylist' | '/today' | '/wardrobe'
+    | '/'
+    | '/auth'
+    | '/check'
+    | '/outfits'
+    | '/profile'
+    | '/stylist'
+    | '/today'
+    | '/wardrobe'
   id:
     | '__root__'
     | '/'
     | '/auth'
     | '/check'
     | '/outfits'
+    | '/profile'
     | '/stylist'
     | '/today'
     | '/wardrobe'
@@ -104,6 +128,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CheckRoute: typeof CheckRoute
   OutfitsRoute: typeof OutfitsRoute
+  ProfileRoute: typeof ProfileRoute
   StylistRoute: typeof StylistRoute
   TodayRoute: typeof TodayRoute
   WardrobeRoute: typeof WardrobeRoute
@@ -139,6 +164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OutfitsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/stylist': {
       id: '/stylist'
       path: '/stylist'
@@ -168,6 +200,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CheckRoute: CheckRoute,
   OutfitsRoute: OutfitsRoute,
+  ProfileRoute: ProfileRoute,
   StylistRoute: StylistRoute,
   TodayRoute: TodayRoute,
   WardrobeRoute: WardrobeRoute,
