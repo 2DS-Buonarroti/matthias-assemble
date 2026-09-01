@@ -154,6 +154,18 @@ function CheckPage() {
                   <span className="font-display text-3xl">{outfitResult.score}/10</span>
                   <p className="text-sm">{outfitResult.verdict}</p>
                 </div>
+                {outfitResult.detected.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {outfitResult.detected.map((d, i) => (
+                      <span
+                        key={i}
+                        className="rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground"
+                      >
+                        {d}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 {outfitResult.works.length > 0 && (
                   <div>
                     <p className="eyebrow mb-1.5">What works</p>
@@ -179,8 +191,17 @@ function CheckPage() {
                     Swap idea — {outfitResult.swap_suggestion}
                   </p>
                 )}
+                {outfitResult.alternatives.length > 0 && (
+                  <div className="space-y-3 border-t border-border pt-4">
+                    <p className="eyebrow">Alternatives from your closet</p>
+                    {outfitResult.alternatives.map((alt, i) => (
+                      <AlternativeLook key={i} alt={alt} items={items} />
+                    ))}
+                  </div>
+                )}
               </div>
             )}
+
           </TabsContent>
 
           <TabsContent value="buy" className="space-y-4 pt-6">
