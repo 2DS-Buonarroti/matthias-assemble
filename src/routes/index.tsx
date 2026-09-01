@@ -66,7 +66,7 @@ function Landing() {
 
         <section className="grid gap-5 border-t border-border pt-12 sm:grid-cols-2">
           {FEATURES.map((f) => (
-            <article key={f.title} className="surface p-6">
+            <article key={f.title} className="rounded-2xl border border-border bg-card p-6">
               <f.icon className="size-5 text-accent" />
               <h2 className="mt-4 font-display text-xl">{f.title}</h2>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.body}</p>
