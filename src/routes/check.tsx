@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/AppShell";
+import { ItemThumb } from "@/components/ItemThumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,10 +13,18 @@ import { useRequireAuth } from "@/hooks/useAuth";
 import {
   checkOutfit,
   checkPurchase,
+  type OutfitAlternative,
   type OutfitCheck,
   type ShoppingVerdict,
 } from "@/lib/ai.functions";
-import { fileToDataUrl, itemsForAi, useWardrobe } from "@/lib/wardrobe";
+import {
+  fileToDataUrl,
+  itemsForAi,
+  useImageUrls,
+  useWardrobe,
+  type WardrobeItem,
+} from "@/lib/wardrobe";
+
 
 export const Route = createFileRoute("/check")({
   head: () => ({
@@ -69,6 +78,33 @@ function Dropzone({
         )}
       </button>
     </>
+  );
+}
+
+function AlternativeLook({
+  alt,
+  items,
+}: {
+  alt: OutfitAlternative;
+  items: WardrobeItem[];
+}) {
+  const picks = alt.item_ids
+    .map((id) => items.find((i) => i.id === id))
+    .filter((i): i is WardrobeItem => !!i);
+  const { data: urls = {} } = useImageUrls(picks.map((p) => p.image_path));
+
+  if (picks.length === 0) return null;
+
+  return (
+    <div className="rounded-xl border border-border p-3">
+      <p className="text-sm font-medium">{alt.title}</p>
+      <div className="mt-2 flex gap-2">
+        {picks.map((p) => (
+          <ItemThumb key={p.id} url={urls[p.image_path]} name={p.name} className="size-16" />
+        ))}
+      </div>
+      {alt.why && <p className="mt-2 text-xs text-muted-foreground">{alt.why}</p>}
+    </div>
   );
 }
 
