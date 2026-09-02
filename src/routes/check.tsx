@@ -72,6 +72,33 @@ function Dropzone({
   );
 }
 
+function AlternativeLook({
+  alt,
+  items,
+}: {
+  alt: OutfitAlternative;
+  items: WardrobeItem[];
+}) {
+  const picks = alt.item_ids
+    .map((id) => items.find((i) => i.id === id))
+    .filter((i): i is WardrobeItem => !!i);
+  const { data: urls = {} } = useImageUrls(picks.map((p) => p.image_path));
+
+  if (picks.length === 0) return null;
+
+  return (
+    <div className="rounded-xl border border-border p-3">
+      <p className="text-sm font-medium">{alt.title}</p>
+      <div className="mt-2 flex gap-2">
+        {picks.map((p) => (
+          <ItemThumb key={p.id} url={urls[p.image_path]} name={p.name} className="size-16" />
+        ))}
+      </div>
+      {alt.why && <p className="mt-2 text-xs text-muted-foreground">{alt.why}</p>}
+    </div>
+  );
+}
+
 function CheckPage() {
   const { session } = useRequireAuth();
   const { data: items = [] } = useWardrobe(!!session);
