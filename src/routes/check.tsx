@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/AppShell";
+import { ItemThumb } from "@/components/ItemThumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,10 +13,18 @@ import { useRequireAuth } from "@/hooks/useAuth";
 import {
   checkOutfit,
   checkPurchase,
+  type OutfitAlternative,
   type OutfitCheck,
   type ShoppingVerdict,
 } from "@/lib/ai.functions";
-import { fileToDataUrl, itemsForAi, useWardrobe } from "@/lib/wardrobe";
+import {
+  fileToDataUrl,
+  itemsForAi,
+  useImageUrls,
+  useWardrobe,
+  type WardrobeItem,
+} from "@/lib/wardrobe";
+
 
 export const Route = createFileRoute("/check")({
   head: () => ({
