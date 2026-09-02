@@ -54,7 +54,7 @@ const COLOR_OPTIONS = [
   { value: "cream", hex: "#EFE6D8" },
   { value: "tan", hex: "#D4A574" },
   { value: "brown", hex: "#6B4B34" },
-  { value: "olive", hex: "#6F7A४".slice(0, 7) },
+  { value: "olive", hex: "#6F7A52" },
   { value: "sage", hex: "#9CAF88" },
   { value: "rose", hex: "#D4A8A8" },
   { value: "burgundy", hex: "#6E2436" },
