@@ -18,6 +18,7 @@ import {
 import { useRequireAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { generateOutfits, type OutfitSuggestion } from "@/lib/ai.functions";
+import { useI18n } from "@/lib/i18n";
 import {
   OCCASIONS,
   WEATHER,
@@ -48,6 +49,7 @@ export const Route = createFileRoute("/today")({
 
 function TodayPage() {
   const { session } = useRequireAuth();
+  const { t, lang, aiLanguage } = useI18n();
   const qc = useQueryClient();
   const generate = useServerFn(generateOutfits);
   const { data: items = [] } = useWardrobe(!!session);
@@ -71,12 +73,13 @@ function TodayPage() {
           palette: "",
           preferences: prefsToText(prefs),
           count: 3,
+          language: aiLanguage,
         },
       });
       setLooks(result);
-      if (!result.length) toast.error("Add a few more pieces and try again.");
+      if (!result.length) toast.error(t("today.needMore"));
     } catch {
-      toast.error("The stylist is busy right now — try again in a moment.");
+      toast.error(t("today.busy"));
     } finally {
       setBusy(false);
     }
@@ -99,32 +102,32 @@ function TodayPage() {
       return;
     }
     qc.invalidateQueries({ queryKey: ["outfits"] });
-    toast.success("Saved to your outfits");
+    toast.success(t("today.saved"));
   }
 
-  const today = new Date().toLocaleDateString(undefined, {
+  const today = new Date().toLocaleDateString(lang, {
     weekday: "long",
     month: "long",
     day: "numeric",
   });
 
   return (
-    <AppShell title="Today" subtitle={today}>
+    <AppShell title={t("today.title")} subtitle={today}>
       {items.length < 3 ? (
         <div className="surface px-6 py-16 text-center">
-          <h2 className="font-display text-2xl">Let's fill your closet first</h2>
+          <h2 className="font-display text-2xl">{t("today.emptyTitle")}</h2>
           <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
-            Add at least three pieces and Atelier can start putting looks together for you.
+            {t("today.emptyBody")}
           </p>
           <Button asChild className="mt-6">
-            <Link to="/wardrobe">Add clothes</Link>
+            <Link to="/wardrobe">{t("today.addClothes")}</Link>
           </Button>
         </div>
       ) : (
         <>
           <div className="surface flex flex-wrap items-end gap-4 p-5">
             <div className="min-w-40 flex-1">
-              <p className="eyebrow mb-1.5">Occasion</p>
+              <p className="eyebrow mb-1.5">{t("today.occasion")}</p>
               <Select value={occasion} onValueChange={setOccasion}>
                 <SelectTrigger>
                   <SelectValue />
@@ -139,7 +142,7 @@ function TodayPage() {
               </Select>
             </div>
             <div className="min-w-40 flex-1">
-              <p className="eyebrow mb-1.5">Weather</p>
+              <p className="eyebrow mb-1.5">{t("today.weather")}</p>
               <Select value={weather} onValueChange={setWeather}>
                 <SelectTrigger>
                   <SelectValue />
@@ -157,12 +160,12 @@ function TodayPage() {
               {busy ? (
                 <>
                   <Loader2 className="mr-2 size-4 animate-spin" />
-                  Styling…
+                  {t("today.styling")}
                 </>
               ) : (
                 <>
                   <Sparkles className="mr-2 size-4" />
-                  Style my day
+                  {t("today.styleMyDay")}
                 </>
               )}
             </Button>
@@ -174,7 +177,7 @@ function TodayPage() {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <h3 className="font-display text-xl">{look.title}</h3>
                   <Button variant="outline" size="sm" onClick={() => saveLook(look)}>
-                    Save look
+                    {t("today.saveLook")}
                   </Button>
                 </div>
                 <div className="mt-4 flex flex-wrap gap-3">
@@ -195,7 +198,7 @@ function TodayPage() {
                 </div>
                 <p className="mt-4 text-sm leading-relaxed">{look.rationale}</p>
                 {look.styling_tip && (
-                  <p className="mt-2 text-sm text-muted-foreground">Tip — {look.styling_tip}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{t("common.tip")} — {look.styling_tip}</p>
                 )}
               </article>
             ))}
