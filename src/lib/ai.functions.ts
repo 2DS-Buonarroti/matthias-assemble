@@ -83,10 +83,17 @@ export type GarmentAnalysis = {
 
 export const analyzeGarment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ imageDataUrl: z.string().min(20) }).parse(d))
+  .inputValidator((d: unknown) =>
+    z
+      .object({ imageDataUrl: z.string().min(20), language: z.string().default("English") })
+      .parse(d),
+  )
   .handler(async ({ data }): Promise<GarmentAnalysis> => {
     const raw = await callGateway([
-      { role: "system", content: `Write every user-facing string in ${data.language ?? "English"}.` },
+      {
+        role: "system",
+        content: `Write "name" and "subtype" in ${data.language}. Keep category, seasons and formality values in English exactly as specified.`,
+      },
       {
         role: "system",
         content:
