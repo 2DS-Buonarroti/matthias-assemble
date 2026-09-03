@@ -86,6 +86,7 @@ export const analyzeGarment = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ imageDataUrl: z.string().min(20) }).parse(d))
   .handler(async ({ data }): Promise<GarmentAnalysis> => {
     const raw = await callGateway([
+      { role: "system", content: `Write every user-facing string in ${data.language ?? "English"}.` },
       {
         role: "system",
         content:
@@ -154,11 +155,13 @@ export const generateOutfits = createServerFn({ method: "POST" })
         palette: z.string().default(""),
         preferences: z.string().default(""),
         count: z.number().min(1).max(4).default(3),
+        language: z.string().default("English"),
       })
       .parse(d),
   )
   .handler(async ({ data }): Promise<OutfitSuggestion[]> => {
     const raw = await callGateway([
+      { role: "system", content: `Write every user-facing string in ${data.language ?? "English"}.` },
       {
         role: "system",
         content:
@@ -204,11 +207,13 @@ export const askStylist = createServerFn({ method: "POST" })
         history: z.array(z.object({ role: z.enum(["user", "assistant"]), content: z.string() })),
         items: z.array(ItemSchema),
         preferences: z.string().default(""),
+        language: z.string().default("English"),
       })
       .parse(d),
   )
   .handler(async ({ data }): Promise<string> => {
     return callGateway([
+      { role: "system", content: `Write every user-facing string in ${data.language ?? "English"}.` },
       {
         role: "system",
         content:
@@ -249,11 +254,13 @@ export const checkOutfit = createServerFn({ method: "POST" })
         imageDataUrl: z.string().min(20),
         context: z.string().default(""),
         items: z.array(ItemSchema),
+        language: z.string().default("English"),
       })
       .parse(d),
   )
   .handler(async ({ data }): Promise<OutfitCheck> => {
     const raw = await callGateway([
+      { role: "system", content: `Write every user-facing string in ${data.language ?? "English"}.` },
       {
         role: "system",
         content:
@@ -316,10 +323,15 @@ export type ShoppingVerdict = {
 export const checkPurchase = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
-    z.object({ imageDataUrl: z.string().min(20), items: z.array(ItemSchema) }).parse(d),
+    z.object({
+      imageDataUrl: z.string().min(20),
+      items: z.array(ItemSchema),
+      language: z.string().default("English"),
+    }).parse(d),
   )
   .handler(async ({ data }): Promise<ShoppingVerdict> => {
     const raw = await callGateway([
+      { role: "system", content: `Write every user-facing string in ${data.language ?? "English"}.` },
       {
         role: "system",
         content:
