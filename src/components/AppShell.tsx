@@ -3,16 +3,18 @@ import { Menu, Shirt, Sparkles, Sun, MessageCircle, ScanLine, User2 } from "luci
 import { useState, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 const NAV = [
-  { to: "/today", label: "Today", icon: Sun },
-  { to: "/wardrobe", label: "Wardrobe", icon: Shirt },
-  { to: "/outfits", label: "Outfits", icon: Sparkles },
-  { to: "/stylist", label: "Stylist", icon: MessageCircle },
-  { to: "/check", label: "Check", icon: ScanLine },
-  { to: "/profile", label: "Profile", icon: User2 },
+  { to: "/today", key: "nav.today", icon: Sun },
+  { to: "/wardrobe", key: "nav.wardrobe", icon: Shirt },
+  { to: "/outfits", key: "nav.outfits", icon: Sparkles },
+  { to: "/stylist", key: "nav.stylist", icon: MessageCircle },
+  { to: "/check", key: "nav.check", icon: ScanLine },
+  { to: "/profile", key: "nav.profile", icon: User2 },
 ] as const;
 
 export function AppShell({
@@ -27,6 +29,7 @@ export function AppShell({
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const { t } = useI18n();
   const navigate = useNavigate();
 
   async function signOut() {
@@ -49,19 +52,20 @@ export function AppShell({
                 className="rounded-full px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 activeProps={{ className: "bg-secondary text-secondary-foreground hover:bg-secondary" }}
               >
-                {n.label}
+                {t(n.key)}
               </Link>
             ))}
           </nav>
           <div className="ml-auto flex items-center gap-2">
+            <LanguageSwitcher />
             <Button variant="ghost" size="sm" className="hidden md:inline-flex" onClick={signOut}>
-              Sign out
+              {t("nav.signOut")}
             </Button>
             <Button
               variant="ghost"
               size="icon"
               className="md:hidden"
-              aria-label="Menu"
+              aria-label={t("nav.menu")}
               onClick={() => setOpen((v) => !v)}
             >
               <Menu className="size-5" />
@@ -79,14 +83,14 @@ export function AppShell({
                 activeProps={{ className: "text-primary-foreground bg-primary" }}
               >
                 <n.icon className="size-4" />
-                {n.label}
+                {t(n.key)}
               </Link>
             ))}
             <button
               onClick={signOut}
               className="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left text-sm text-muted-foreground"
             >
-              Sign out
+              {t("nav.signOut")}
             </button>
           </div>
         )}
@@ -112,7 +116,7 @@ export function AppShell({
             activeProps={{ className: "text-foreground" }}
           >
             <n.icon className="size-5" />
-            {n.label}
+            {t(n.key)}
           </Link>
         ))}
       </nav>
