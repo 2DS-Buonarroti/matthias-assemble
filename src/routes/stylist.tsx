@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRequireAuth } from "@/hooks/useAuth";
 import { askStylist } from "@/lib/ai.functions";
+import { useI18n } from "@/lib/i18n";
 import { itemsForAi, prefsToText, usePrefs, useWardrobe } from "@/lib/wardrobe";
 import { cn } from "@/lib/utils";
 
@@ -30,17 +31,13 @@ export const Route = createFileRoute("/stylist")({
   component: StylistPage,
 });
 
-const STARTERS = [
-  "What should I wear to a dinner tonight?",
-  "How do I style my white shirt differently?",
-  "What's missing from my wardrobe?",
-  "Build me a capsule for a weekend trip.",
-];
+const STARTERS = ["stylist.s1", "stylist.s2", "stylist.s3", "stylist.s4"];
 
 type Msg = { role: "user" | "assistant"; content: string };
 
 function StylistPage() {
   const { session } = useRequireAuth();
+  const { t, aiLanguage } = useI18n();
   const ask = useServerFn(askStylist);
   const { data: items = [] } = useWardrobe(!!session);
   const { data: prefs } = usePrefs(!!session);
@@ -58,30 +55,35 @@ function StylistPage() {
     setBusy(true);
     try {
       const reply = await ask({
-        data: { history, items: itemsForAi(items), preferences: prefsToText(prefs) },
+        data: {
+          history,
+          items: itemsForAi(items),
+          preferences: prefsToText(prefs),
+          language: aiLanguage,
+        },
       });
       setMessages([...history, { role: "assistant", content: reply }]);
     } catch {
-      toast.error("Couldn't reach your stylist — try again.");
+      toast.error(t("stylist.error"));
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <AppShell title="Your stylist" subtitle="Ask anything — she knows what's in your closet.">
+    <AppShell title={t("stylist.title")} subtitle={t("stylist.subtitle")}>
       <div className="mx-auto flex max-w-2xl flex-col">
         {messages.length === 0 && (
           <div className="surface p-6">
-            <p className="text-sm text-muted-foreground">Not sure where to start?</p>
+            <p className="text-sm text-muted-foreground">{t("stylist.startHint")}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {STARTERS.map((s) => (
                 <button
                   key={s}
-                  onClick={() => send(s)}
+                  onClick={() => send(t(s))}
                   className="rounded-full border border-border px-3 py-1.5 text-left text-xs transition-colors hover:bg-muted"
                 >
-                  {s}
+                  {t(s)}
                 </button>
               ))}
             </div>
@@ -104,7 +106,7 @@ function StylistPage() {
           ))}
           {busy && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="size-4 animate-spin" /> Thinking about your closet…
+              <Loader2 className="size-4 animate-spin" /> {t("stylist.thinking")}
             </div>
           )}
         </div>
@@ -119,10 +121,10 @@ function StylistPage() {
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="What should I wear today?"
+            placeholder={t("stylist.placeholder")}
             className="border-0 shadow-none focus-visible:ring-0"
           />
-          <Button type="submit" size="icon" disabled={busy} aria-label="Send">
+          <Button type="submit" size="icon" disabled={busy} aria-label={t("stylist.send")}>
             <Send className="size-4" />
           </Button>
         </form>

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useRequireAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useImageUrls, useOutfits, useWardrobe, type Outfit } from "@/lib/wardrobe";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/outfits")({
@@ -31,6 +32,7 @@ export const Route = createFileRoute("/outfits")({
 
 function OutfitsPage() {
   const { session } = useRequireAuth();
+  const { t } = useI18n();
   const qc = useQueryClient();
   const { data: outfits = [], isLoading } = useOutfits(!!session);
   const { data: items = [] } = useWardrobe(!!session);
@@ -55,21 +57,21 @@ function OutfitsPage() {
       return;
     }
     qc.invalidateQueries({ queryKey: ["outfits"] });
-    toast.success("Outfit removed");
+    toast.success(t("outfits.removed"));
   }
 
   return (
-    <AppShell title="Outfits" subtitle="Looks you've saved, ready to wear again.">
+    <AppShell title={t("outfits.title")} subtitle={t("outfits.subtitle")}>
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <p className="text-sm text-muted-foreground">{t("outfits.loading")}</p>
       ) : outfits.length === 0 ? (
         <div className="surface px-6 py-16 text-center">
-          <h2 className="font-display text-xl">No saved looks yet</h2>
+          <h2 className="font-display text-xl">{t("outfits.emptyTitle")}</h2>
           <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
-            Generate outfits on the Today page and save the ones you love.
+            {t("outfits.emptyBody")}
           </p>
           <Button asChild className="mt-6">
-            <Link to="/today">Style my day</Link>
+            <Link to="/today">{t("outfits.goStyle")}</Link>
           </Button>
         </div>
       ) : (
@@ -87,7 +89,7 @@ function OutfitsPage() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    aria-label="Favourite"
+                    aria-label={t("outfits.favourite")}
                     onClick={() => toggleFavorite(outfit)}
                   >
                     <Heart
@@ -97,7 +99,7 @@ function OutfitsPage() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    aria-label="Delete outfit"
+                    aria-label={t("outfits.delete")}
                     onClick={() => remove(outfit)}
                   >
                     <Trash2 className="size-4" />
@@ -122,7 +124,7 @@ function OutfitsPage() {
                 <p className="mt-4 text-sm leading-relaxed">{outfit.rationale}</p>
               )}
               {outfit.styling_tip && (
-                <p className="mt-2 text-sm text-muted-foreground">Tip — {outfit.styling_tip}</p>
+                <p className="mt-2 text-sm text-muted-foreground">{t("common.tip")} — {outfit.styling_tip}</p>
               )}
             </article>
           ))}
