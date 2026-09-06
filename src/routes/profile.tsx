@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useRequireAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { usePrefs } from "@/lib/wardrobe";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/profile")({
@@ -138,6 +139,17 @@ function Chip({
 function ProfilePage() {
   const { session } = useRequireAuth();
   const qc = useQueryClient();
+  const { t } = useI18n();
+  const tv = (v: string) => {
+    const k = `opt.${v}`;
+    const out = t(k);
+    return out === k ? v : out;
+  };
+  const th = (v: string, fb: string) => {
+    const k = `hint.${v}`;
+    const out = t(k);
+    return out === k ? fb : out;
+  };
   const { data: prefs, isLoading } = usePrefs(!!session);
 
   const [draft, setDraft] = useState<Draft>(EMPTY);
@@ -205,14 +217,14 @@ function ProfilePage() {
       return;
     }
     await qc.invalidateQueries({ queryKey: ["prefs"] });
-    toast.success(finishQuiz ? "Style profile ready — your looks will match it now" : "Saved");
+    toast.success(finishQuiz ? t("profile.done") : t("wardrobe.saved"));
     if (finishQuiz) setMode("summary");
   }
 
   const steps = [
     {
-      title: "Which words describe how you like to dress?",
-      hint: "Pick as many as feel right.",
+      title: t("profile.q1"),
+      hint: t("profile.q1h"),
       body: (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {STYLE_OPTIONS.map((s) => (
@@ -220,17 +232,17 @@ function ProfilePage() {
               key={s.value}
               active={draft.styles.includes(s.value)}
               onClick={() => toggle("styles", s.value)}
-              hint={s.hint}
+              hint={th(s.value, s.hint)}
             >
-              {s.label}
+              {tv(s.value)}
             </Chip>
           ))}
         </div>
       ),
     },
     {
-      title: "Which colours do you reach for?",
-      hint: "These get priority when outfits are built.",
+      title: t("profile.q2"),
+      hint: t("profile.q2h"),
       body: (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {COLOR_OPTIONS.map((c) => {
@@ -251,7 +263,7 @@ function ProfilePage() {
                   className="size-5 shrink-0 rounded-full border border-border"
                   style={{ backgroundColor: c.hex }}
                 />
-                {c.value}
+                {tv(c.value)}
               </button>
             );
           })}
@@ -259,38 +271,38 @@ function ProfilePage() {
       ),
     },
     {
-      title: "Anything you'd rather never wear?",
-      hint: "Atelier will keep these out of suggestions.",
+      title: t("profile.q3"),
+      hint: t("profile.q3h"),
       body: (
         <div className="flex flex-wrap gap-2">
           {AVOID_OPTIONS.map((a) => (
             <Chip key={a} active={draft.avoid.includes(a)} onClick={() => toggle("avoid", a)}>
-              {a}
+              {tv(a)}
             </Chip>
           ))}
         </div>
       ),
     },
     {
-      title: "What does a normal week look like?",
-      hint: "This shapes how dressy the daily looks are.",
+      title: t("profile.q4"),
+      hint: t("profile.q4h"),
       body: (
         <div className="flex flex-wrap gap-2">
           {LIFE_OPTIONS.map((l) => (
             <Chip key={l} active={draft.life.includes(l)} onClick={() => toggle("life", l)}>
-              {l}
+              {tv(l)}
             </Chip>
           ))}
         </div>
       ),
     },
     {
-      title: "Fit and sizes",
-      hint: "Optional, but it makes shopping advice much sharper.",
+      title: t("profile.q5"),
+      hint: t("profile.q5h"),
       body: (
         <div className="space-y-5">
           <div>
-            <p className="eyebrow mb-2">Preferred fit</p>
+            <p className="eyebrow mb-2">{t("profile.fit")}</p>
             <div className="flex flex-wrap gap-2">
               {FIT_OPTIONS.map((f) => (
                 <Chip
@@ -298,28 +310,28 @@ function ProfilePage() {
                   active={draft.fit === f}
                   onClick={() => setDraft((d) => ({ ...d, fit: d.fit === f ? "" : f }))}
                 >
-                  {f}
+                  {tv(f)}
                 </Chip>
               ))}
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="sizes">Sizes</Label>
+            <Label htmlFor="sizes">{t("profile.sizes")}</Label>
             <Input
               id="sizes"
               value={draft.sizes}
               onChange={(e) => setDraft((d) => ({ ...d, sizes: e.target.value }))}
-              placeholder="Tops M, jeans 30, shoes 42"
+              placeholder={t("profile.sizesPlaceholder")}
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="notes">Anything else Atelier should know</Label>
+            <Label htmlFor="notes">{t("profile.notes")}</Label>
             <Textarea
               id="notes"
               rows={4}
               value={draft.notes}
               onChange={(e) => setDraft((d) => ({ ...d, notes: e.target.value }))}
-              placeholder="My office is business casual, I hate ironing, I'm always cold…"
+              placeholder={t("profile.notesPlaceholder")}
             />
           </div>
         </div>
@@ -332,16 +344,16 @@ function ProfilePage() {
 
   if (mode === "summary") {
     return (
-      <AppShell title="Style profile" subtitle="This is what Atelier uses to pick your looks.">
+      <AppShell title={t("profile.title")} subtitle={t("profile.subtitle")}>
         <div className="mx-auto max-w-xl space-y-6">
-          <SummaryBlock label="Style words" values={draft.styles} />
-          <SummaryBlock label="Colours you love" values={draft.colors} />
-          <SummaryBlock label="Never suggest" values={draft.avoid} />
-          <SummaryBlock label="Your week" values={draft.life} />
-          <SummaryBlock label="Fit & sizes" values={[draft.fit, draft.sizes].filter(Boolean)} />
+          <SummaryBlock label={t("profile.sumStyles")} values={draft.styles.map(tv)} />
+          <SummaryBlock label={t("profile.sumColors")} values={draft.colors.map(tv)} />
+          <SummaryBlock label={t("profile.sumAvoid")} values={draft.avoid.map(tv)} />
+          <SummaryBlock label={t("profile.sumLife")} values={draft.life.map(tv)} />
+          <SummaryBlock label={t("profile.sumFit")} values={[draft.fit ? tv(draft.fit) : "", draft.sizes].filter(Boolean)} />
           {draft.notes && (
             <div>
-              <p className="eyebrow mb-1.5">Notes</p>
+              <p className="eyebrow mb-1.5">{t("profile.sumNotes")}</p>
               <p className="whitespace-pre-line text-sm text-muted-foreground">{draft.notes}</p>
             </div>
           )}
@@ -352,7 +364,7 @@ function ProfilePage() {
               setMode("quiz");
             }}
           >
-            Retake the style quiz
+            {t("profile.retake")}
           </Button>
         </div>
       </AppShell>
@@ -360,7 +372,7 @@ function ProfilePage() {
   }
 
   return (
-    <AppShell title="Style quiz" subtitle="Five quick questions — then every suggestion is tuned to you.">
+    <AppShell title={t("profile.quizTitle")} subtitle={t("profile.quizSubtitle")}>
       <div className="mx-auto max-w-xl space-y-6">
         <div className="flex gap-1.5">
           {steps.map((_, i) => (
@@ -376,7 +388,7 @@ function ProfilePage() {
 
         <div>
           <p className="eyebrow mb-1">
-            Step {step + 1} of {steps.length}
+            {t("profile.step")} {step + 1} {t("profile.of")} {steps.length}
           </p>
           <h2 className="font-display text-2xl">{current.title}</h2>
           <p className="mt-1 text-sm text-muted-foreground">{current.hint}</p>
@@ -387,16 +399,16 @@ function ProfilePage() {
         <div className="flex gap-2 pt-2">
           {step > 0 && (
             <Button variant="outline" onClick={() => setStep(step - 1)} className="flex-1">
-              Back
+              {t("profile.back")}
             </Button>
           )}
           {last ? (
             <Button onClick={() => save(true)} disabled={busy} className="flex-1">
-              {busy ? "Saving…" : "Save my style profile"}
+              {busy ? t("profile.saving") : t("profile.save")}
             </Button>
           ) : (
             <Button onClick={() => setStep(step + 1)} className="flex-1">
-              Continue
+              {t("profile.continue")}
             </Button>
           )}
         </div>
@@ -406,7 +418,7 @@ function ProfilePage() {
             onClick={() => setMode("summary")}
             className="w-full text-center text-xs text-muted-foreground underline"
           >
-            Cancel and keep my current profile
+            {t("profile.cancel")}
           </button>
         )}
       </div>
@@ -419,7 +431,7 @@ function SummaryBlock({ label, values }: { label: string; values: string[] }) {
     <div>
       <p className="eyebrow mb-1.5">{label}</p>
       {values.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Not set yet</p>
+        <p className="text-sm text-muted-foreground">—</p>
       ) : (
         <div className="flex flex-wrap gap-1.5">
           {values.map((v) => (
