@@ -1,6 +1,7 @@
 /** Additional translations for the wardrobe, check, auth and profile screens. */
 export const EXTRA: Record<string, Record<string, string>> = {
   en: {
+    "common.or": "or",
     "auth.h1signup": "Create your wardrobe",
     "auth.h1signin": "Welcome back",
     "auth.subSignup": "It takes about five minutes to get your first outfit.",
@@ -96,6 +97,7 @@ export const EXTRA: Record<string, Record<string, string>> = {
     "profile.notSet": "Not set yet",
   },
   it: {
+    "common.or": "oppure",
     "opt.classic": "Classico",
     "opt.minimal": "Minimal",
     "opt.streetwear": "Streetwear",
@@ -244,6 +246,7 @@ export const EXTRA: Record<string, Record<string, string>> = {
     "profile.notSet": "Non ancora impostato",
   },
   de: {
+    "common.or": "oder",
     "opt.classic": "Klassisch",
     "opt.minimal": "Minimalistisch",
     "opt.streetwear": "Streetwear",
@@ -392,6 +395,7 @@ export const EXTRA: Record<string, Record<string, string>> = {
     "profile.notSet": "Noch nicht gesetzt",
   },
   fr: {
+    "common.or": "ou",
     "opt.classic": "Classique",
     "opt.minimal": "Minimaliste",
     "opt.streetwear": "Streetwear",
