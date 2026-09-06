@@ -24,6 +24,7 @@ import {
   useWardrobe,
   type WardrobeItem,
 } from "@/lib/wardrobe";
+import { useI18n } from "@/lib/i18n";
 
 
 export const Route = createFileRoute("/check")({
@@ -110,6 +111,7 @@ function AlternativeLook({
 
 function CheckPage() {
   const { session } = useRequireAuth();
+  const { t, aiLanguage } = useI18n();
   const { data: items = [] } = useWardrobe(!!session);
   const runOutfit = useServerFn(checkOutfit);
   const runPurchase = useServerFn(checkPurchase);
@@ -125,7 +127,7 @@ function CheckPage() {
     try {
       set(await fileToDataUrl(file));
     } catch {
-      toast.error("Couldn't read that photo.");
+      toast.error(t("check.badPhoto"));
     }
   }
 
@@ -134,10 +136,10 @@ function CheckPage() {
     setBusy(true);
     try {
       setOutfitResult(
-        await runOutfit({ data: { imageDataUrl: outfitImg, context, items: itemsForAi(items) } }),
+        await runOutfit({ data: { imageDataUrl: outfitImg, context, items: itemsForAi(items), language: aiLanguage } }),
       );
     } catch {
-      toast.error("Couldn't review that look — try again.");
+      toast.error(t("check.failLook"));
     } finally {
       setBusy(false);
     }
@@ -147,24 +149,24 @@ function CheckPage() {
     if (!buyImg) return;
     setBusy(true);
     try {
-      setBuyResult(await runPurchase({ data: { imageDataUrl: buyImg, items: itemsForAi(items) } }));
+      setBuyResult(await runPurchase({ data: { imageDataUrl: buyImg, items: itemsForAi(items), language: aiLanguage } }));
     } catch {
-      toast.error("Couldn't review that item — try again.");
+      toast.error(t("check.failItem"));
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <AppShell title="Second opinion" subtitle="Kind, practical feedback — never about your body.">
+    <AppShell title={t("check.title")} subtitle={t("check.subtitle")}>
       <div className="mx-auto max-w-2xl">
         <Tabs defaultValue="outfit">
           <TabsList className="w-full">
             <TabsTrigger value="outfit" className="flex-1">
-              Outfit check
+              {t("check.tab1")}
             </TabsTrigger>
             <TabsTrigger value="buy" className="flex-1">
-              Should I buy it?
+              {t("check.tab2")}
             </TabsTrigger>
           </TabsList>
 
@@ -177,11 +179,11 @@ function CheckPage() {
             <Input
               value={context}
               onChange={(e) => setContext(e.target.value)}
-              placeholder="Where are you going? e.g. client lunch, then drinks"
+              placeholder={t("check.contextPlaceholder")}
             />
             <Button onClick={reviewOutfit} disabled={!outfitImg || busy} className="w-full">
               {busy ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-              Check my outfit
+              {t("check.run")}
             </Button>
 
             {outfitResult && (
@@ -204,7 +206,7 @@ function CheckPage() {
                 )}
                 {outfitResult.works.length > 0 && (
                   <div>
-                    <p className="eyebrow mb-1.5">What works</p>
+                    <p className="eyebrow mb-1.5">{t("check.works")}</p>
                     <ul className="list-disc space-y-1 pl-5 text-sm">
                       {outfitResult.works.map((w, i) => (
                         <li key={i}>{w}</li>
@@ -214,7 +216,7 @@ function CheckPage() {
                 )}
                 {outfitResult.improve.length > 0 && (
                   <div>
-                    <p className="eyebrow mb-1.5">Worth trying</p>
+                    <p className="eyebrow mb-1.5">{t("check.improve")}</p>
                     <ul className="list-disc space-y-1 pl-5 text-sm">
                       {outfitResult.improve.map((w, i) => (
                         <li key={i}>{w}</li>
@@ -229,7 +231,7 @@ function CheckPage() {
                 )}
                 {outfitResult.alternatives.length > 0 && (
                   <div className="space-y-3 border-t border-border pt-4">
-                    <p className="eyebrow">Alternatives from your closet</p>
+                    <p className="eyebrow">{t("check.alternatives")}</p>
                     {outfitResult.alternatives.map((alt, i) => (
                       <AlternativeLook key={i} alt={alt} items={items} />
                     ))}
@@ -248,7 +250,7 @@ function CheckPage() {
             />
             <Button onClick={reviewPurchase} disabled={!buyImg || busy} className="w-full">
               {busy ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-              Does it fit my wardrobe?
+              {t("check.buyRun")}
             </Button>
 
             {buyResult && (
@@ -260,7 +262,7 @@ function CheckPage() {
                 <p className="text-sm leading-relaxed">{buyResult.recommendation}</p>
                 {buyResult.pairs_with.length > 0 && (
                   <p className="text-sm">
-                    <span className="eyebrow">Pairs with</span>{" "}
+                    <span className="eyebrow">{t("check.pairs")}</span>{" "}
                     {buyResult.pairs_with.join(", ")}
                   </p>
                 )}
