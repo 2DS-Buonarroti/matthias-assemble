@@ -27,19 +27,7 @@ const en: Dict = {
   "nav.language": "Language",
 
   "landing.signIn": "Sign in",
-  "landing.eyebrow": "Personal styling, quietly clever",
-  "landing.title": "Your closet already holds the answer.",
-  "landing.body":
-    "Atelier learns every piece you own, then puts outfits together for whatever the day asks of you — no shopping required.",
   "landing.cta": "Build my wardrobe",
-  "landing.f1.title": "Digital wardrobe",
-  "landing.f1.body": "Snap each piece — colour, fabric and season are tagged for you.",
-  "landing.f2.title": "Outfits for your day",
-  "landing.f2.body": "Looks matched to the occasion, the weather and your own taste.",
-  "landing.f3.title": "A stylist on call",
-  "landing.f3.body": "Ask anything; she answers using the clothes you actually own.",
-  "landing.f4.title": "Second opinions",
-  "landing.f4.body": "Check today's look, or whether that new piece earns its place.",
 
   "today.title": "Today",
   "today.emptyTitle": "Let's fill your closet first",
@@ -91,19 +79,7 @@ const it: Dict = {
   "nav.language": "Lingua",
 
   "landing.signIn": "Accedi",
-  "landing.eyebrow": "Styling personale, con discrezione",
-  "landing.title": "Il tuo armadio ha già la risposta.",
-  "landing.body":
-    "Atelier impara ogni capo che possiedi e compone look per qualsiasi giornata — senza comprare nulla.",
   "landing.cta": "Crea il mio armadio",
-  "landing.f1.title": "Armadio digitale",
-  "landing.f1.body": "Fotografa ogni capo: colore, tessuto e stagione vengono taggati per te.",
-  "landing.f2.title": "Outfit per la tua giornata",
-  "landing.f2.body": "Look scelti in base all'occasione, al meteo e al tuo gusto.",
-  "landing.f3.title": "Una stylist sempre disponibile",
-  "landing.f3.body": "Chiedi quello che vuoi: risponde usando i vestiti che hai davvero.",
-  "landing.f4.title": "Un secondo parere",
-  "landing.f4.body": "Controlla il look di oggi o se quel nuovo capo merita spazio.",
 
   "today.title": "Oggi",
   "today.emptyTitle": "Riempiamo prima il tuo armadio",
@@ -155,19 +131,7 @@ const de: Dict = {
   "nav.language": "Sprache",
 
   "landing.signIn": "Anmelden",
-  "landing.eyebrow": "Persönliches Styling, ganz unaufgeregt",
-  "landing.title": "Dein Kleiderschrank kennt die Antwort längst.",
-  "landing.body":
-    "Atelier lernt jedes deiner Teile kennen und stellt Outfits für jeden Tag zusammen — ganz ohne Shopping.",
   "landing.cta": "Kleiderschrank anlegen",
-  "landing.f1.title": "Digitaler Kleiderschrank",
-  "landing.f1.body": "Fotografiere jedes Teil — Farbe, Stoff und Saison werden automatisch getaggt.",
-  "landing.f2.title": "Outfits für deinen Tag",
-  "landing.f2.body": "Looks passend zu Anlass, Wetter und deinem Geschmack.",
-  "landing.f3.title": "Stylistin auf Abruf",
-  "landing.f3.body": "Frag alles — die Antwort nutzt nur Kleidung, die du wirklich besitzt.",
-  "landing.f4.title": "Zweite Meinung",
-  "landing.f4.body": "Prüfe den heutigen Look oder ob sich das neue Teil lohnt.",
 
   "today.title": "Heute",
   "today.emptyTitle": "Füllen wir zuerst deinen Schrank",
@@ -219,19 +183,7 @@ const fr: Dict = {
   "nav.language": "Langue",
 
   "landing.signIn": "Se connecter",
-  "landing.eyebrow": "Un styling personnel, tout en finesse",
-  "landing.title": "Votre penderie a déjà la réponse.",
-  "landing.body":
-    "Atelier apprend chaque pièce que vous possédez, puis compose des tenues pour toutes vos journées — sans rien acheter.",
   "landing.cta": "Créer ma garde-robe",
-  "landing.f1.title": "Garde-robe numérique",
-  "landing.f1.body": "Photographiez chaque pièce : couleur, matière et saison sont étiquetées pour vous.",
-  "landing.f2.title": "Des tenues pour votre journée",
-  "landing.f2.body": "Des looks adaptés à l'occasion, à la météo et à vos goûts.",
-  "landing.f3.title": "Une styliste disponible",
-  "landing.f3.body": "Posez vos questions : elle répond avec les vêtements que vous avez vraiment.",
-  "landing.f4.title": "Un deuxième avis",
-  "landing.f4.body": "Vérifiez le look du jour, ou si cette nouveauté mérite sa place.",
 
   "today.title": "Aujourd'hui",
   "today.emptyTitle": "Remplissons d'abord votre penderie",
