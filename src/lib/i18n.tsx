@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
+import { EXTRA } from "./i18n.extra";
+
 export const LANGUAGES = [
   { code: "it", label: "Italiano", flag: "IT", ai: "Italian" },
   { code: "en", label: "English", flag: "EN", ai: "English" },
@@ -269,7 +271,12 @@ const fr: Dict = {
   "stylist.error": "Impossible de joindre votre styliste — réessayez.",
 };
 
-const DICTS: Record<Lang, Dict> = { en, it, de, fr };
+const DICTS: Record<Lang, Dict> = {
+  en: { ...en, ...(EXTRA["en"] ?? {}) },
+  it: { ...it, ...(EXTRA["it"] ?? {}) },
+  de: { ...de, ...(EXTRA["de"] ?? {}) },
+  fr: { ...fr, ...(EXTRA["fr"] ?? {}) },
+};
 
 type Ctx = { lang: Lang; setLang: (l: Lang) => void; t: (key: string) => string; aiLanguage: string };
 
@@ -300,7 +307,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
         setLangState(l);
         if (typeof localStorage !== "undefined") localStorage.setItem(STORAGE_KEY, l);
       },
-      t: (key) => DICTS[lang][key] ?? en[key] ?? key,
+      t: (key) => DICTS[lang][key] ?? DICTS.en[key] ?? key,
       aiLanguage: LANGUAGES.find((l) => l.code === lang)?.ai ?? "English",
     }),
     [lang],
@@ -315,7 +322,7 @@ export function useI18n(): Ctx {
     return {
       lang: "en",
       setLang: () => {},
-      t: (key) => en[key] ?? key,
+      t: (key) => DICTS.en[key] ?? key,
       aiLanguage: "English",
     };
   }
