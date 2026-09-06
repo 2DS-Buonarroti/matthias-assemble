@@ -31,6 +31,7 @@ import {
   useWardrobe,
   type WardrobeItem,
 } from "@/lib/wardrobe";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/wardrobe")({
@@ -58,6 +59,7 @@ function WardrobePage() {
   const { data: items = [], isLoading } = useWardrobe(!!session);
   const { data: urls = {} } = useImageUrls(items.map((i) => i.image_path));
 
+  const { t: tr, aiLanguage } = useI18n();
   const [uploading, setUploading] = useState<{ done: number; total: number } | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [filter, setFilter] = useState<string>("all");
@@ -75,7 +77,7 @@ function WardrobePage() {
       const file = list[i]!;
       try {
         const dataUrl = await fileToDataUrl(file);
-        const analysis = await analyze({ data: { imageDataUrl: dataUrl } });
+        const analysis = await analyze({ data: { imageDataUrl: dataUrl, language: aiLanguage } });
         const path = `${session.user.id}/${crypto.randomUUID()}.jpg`;
         const { error: upErr } = await supabase.storage
           .from("wardrobe")
@@ -108,7 +110,7 @@ function WardrobePage() {
     }
     setEditing(null);
     qc.invalidateQueries({ queryKey: ["wardrobe"] });
-    toast.success("Item removed");
+    toast.success(tr("wardrobe.removed"));
   }
 
   async function save(item: WardrobeItem) {
@@ -129,13 +131,13 @@ function WardrobePage() {
     }
     setEditing(null);
     qc.invalidateQueries({ queryKey: ["wardrobe"] });
-    toast.success("Saved");
+    toast.success(tr("wardrobe.saved"));
   }
 
   return (
     <AppShell
-      title="Your wardrobe"
-      subtitle="Drop in photos of what you own — each piece is tagged automatically."
+      title={tr("wardrobe.title")}
+      subtitle={tr("wardrobe.subtitle")}
       action={
         <Button onClick={() => inputRef.current?.click()} disabled={!!uploading}>
           {uploading ? (
@@ -146,7 +148,7 @@ function WardrobePage() {
           ) : (
             <>
               <Plus className="mr-2 size-4" />
-              Add items
+              {tr("wardrobe.add")}
             </>
           )}
         </Button>
@@ -179,9 +181,9 @@ function WardrobePage() {
         )}
       >
         <UploadCloud className="mx-auto size-6 text-muted-foreground" />
-        <p className="mt-3 text-sm font-medium">Drag photos here, or click to browse</p>
+        <p className="mt-3 text-sm font-medium">{tr("wardrobe.drop")}</p>
         <p className="mt-1 text-xs text-muted-foreground">
-          Bulk upload works — select your whole closet shoot at once.
+          {tr("wardrobe.bulk")}
         </p>
       </div>
 
@@ -204,10 +206,10 @@ function WardrobePage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading your wardrobe…</p>
+        <p className="text-sm text-muted-foreground">{tr("wardrobe.loading")}</p>
       ) : shown.length === 0 ? (
         <div className="surface px-6 py-16 text-center">
-          <h2 className="font-display text-xl">Nothing here yet</h2>
+          <h2 className="font-display text-xl">{tr("wardrobe.empty")}</h2>
           <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
             Add 5–10 favourites to start. Lay each piece flat, snap a photo, and Atelier does the rest.
           </p>
@@ -234,7 +236,7 @@ function WardrobePage() {
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-display">Edit item</DialogTitle>
+            <DialogTitle className="font-display">{tr("wardrobe.edit")}</DialogTitle>
           </DialogHeader>
           {editing && (
             <div className="space-y-4">
@@ -244,7 +246,7 @@ function WardrobePage() {
                 className="mx-auto aspect-[3/4] w-40"
               />
               <div className="space-y-1.5">
-                <Label>Name</Label>
+                <Label>{tr("wardrobe.name")}</Label>
                 <Input
                   value={editing.name}
                   onChange={(e) => setEditing({ ...editing, name: e.target.value })}
@@ -252,7 +254,7 @@ function WardrobePage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label>Category</Label>
+                  <Label>{tr("wardrobe.category")}</Label>
                   <Select
                     value={editing.category}
                     onValueChange={(v) => setEditing({ ...editing, category: v })}
@@ -270,7 +272,7 @@ function WardrobePage() {
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Colour</Label>
+                  <Label>{tr("wardrobe.colour")}</Label>
                   <Input
                     value={editing.primary_color ?? ""}
                     onChange={(e) => setEditing({ ...editing, primary_color: e.target.value })}
@@ -278,7 +280,7 @@ function WardrobePage() {
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label>Tags (comma separated)</Label>
+                <Label>{tr("wardrobe.tags")}</Label>
                 <Input
                   value={editing.tags.join(", ")}
                   onChange={(e) =>
@@ -300,19 +302,19 @@ function WardrobePage() {
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label>Notes</Label>
+                <Label>{tr("wardrobe.notes")}</Label>
                 <Textarea
                   rows={3}
                   value={editing.notes ?? ""}
                   onChange={(e) => setEditing({ ...editing, notes: e.target.value })}
-                  placeholder="Gift from mum, runs small, dry clean only…"
+                  placeholder={tr("wardrobe.notesPlaceholder")}
                 />
               </div>
               <div className="flex gap-2 pt-2">
                 <Button className="flex-1" onClick={() => save(editing)}>
-                  Save changes
+                  {tr("wardrobe.save")}
                 </Button>
-                <Button variant="outline" size="icon" onClick={() => remove(editing)} aria-label="Delete">
+                <Button variant="outline" size="icon" onClick={() => remove(editing)} aria-label={tr("wardrobe.delete")}>
                   <Trash2 className="size-4" />
                 </Button>
               </div>
