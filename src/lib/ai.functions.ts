@@ -322,10 +322,32 @@ export type OutfitAlternative = {
   why: string;
 };
 
+export type DetectedPiece = {
+  name: string;
+  category: string;
+  color: string;
+  pattern: string;
+  material: string;
+  fit: string;
+  size_estimate: string;
+  condition_note: string;
+};
+
+export type StyleRead = {
+  style: string;
+  formality: string;
+  palette: string;
+  proportion: string;
+  fit_overall: string;
+  season: string;
+};
+
 export type OutfitCheck = {
   score: number;
   verdict: string;
   detected: string[];
+  pieces: DetectedPiece[];
+  style: StyleRead;
   works: string[];
   improve: string[];
   swap_suggestion: string;
@@ -350,13 +372,23 @@ export const checkOutfit = createServerFn({ method: "POST" })
       {
         role: "system",
         content:
-          "You review a photo of someone's outfit as a kind, encouraging stylist. Never comment on body, weight, " +
-          "face or appearance — only the clothes. First look carefully at the photo and list the garments you " +
-          "can actually see. Then build 1-2 alternative outfits using ONLY the wardrobe items provided, by their " +
+          "You are a kind, encouraging stylist with a trained eye for garment construction. Never comment on body, " +
+          "weight, face or appearance — describe fit only in terms of how the clothes are cut and how they sit. " +
+          "Study the photo closely: identify every visible garment, its likely fabric (from drape, sheen, weave and " +
+          "texture), its pattern, how it fits (oversized, relaxed, regular, tailored, slim, cropped), and the " +
+          "apparent size relative to the wearer (e.g. \"true to size\", \"one size up\", \"looks a size small\"). " +
+          "Also read the overall style, formality, colour palette and proportion balance. " +
+          "Give precise, specific advice — reference fabrics, hem lengths, proportions and colour temperature, " +
+          "never vague praise. Then build 1-2 alternative outfits using ONLY the wardrobe items provided, by their " +
           "exact ids — never invent items, and if the wardrobe is empty return an empty alternatives array. " +
           "Reply with ONLY JSON: " +
-          '{"score":number 1-10,"verdict":string (one warm sentence),"detected":string[] (garments visible in the photo),' +
-          '"works":string[] (2-3 things that work),"improve":string[] (1-3 gentle suggestions),' +
+          '{"score":number 1-10,"verdict":string (one warm sentence),' +
+          '"pieces":[{"name":string,"category":one of ["top","bottom","dress","outerwear","shoes","bag","accessory","other"],' +
+          '"color":string,"pattern":string,"material":string (best fabric guess, e.g. "cotton poplin","wool blend","denim"),' +
+          '"fit":string,"size_estimate":string (how the size reads, clothing only),"condition_note":string (short note on drape, wrinkles, hem or styling detail)}],' +
+          '"style":{"style":string (aesthetic label, e.g. "smart casual minimal"),"formality":string,"palette":string (colour story and temperature),' +
+          '"proportion":string (how the silhouette balances),"fit_overall":string,"season":string},' +
+          '"works":string[] (2-3 specific things that work),"improve":string[] (1-3 precise, actionable suggestions),' +
           '"swap_suggestion":string (one swap using an item from their wardrobe, by name),' +
           '"alternatives":[{"title":string,"item_ids":string[] (2-5 real wardrobe ids),"why":string (one sentence)}]}',
       },
@@ -381,6 +413,24 @@ export const checkOutfit = createServerFn({ method: "POST" })
       score,
       verdict: parsed.verdict || "Nice work.",
       detected: Array.isArray(parsed.detected) ? parsed.detected.slice(0, 8) : [],
+      pieces: (Array.isArray(parsed.pieces) ? parsed.pieces : []).slice(0, 10).map((p) => ({
+        name: p?.name || "Piece",
+        category: normalizeCategory(p?.category),
+        color: (p?.color || "").toString(),
+        pattern: (p?.pattern || "").toString(),
+        material: (p?.material || "").toString(),
+        fit: (p?.fit || "").toString(),
+        size_estimate: (p?.size_estimate || "").toString(),
+        condition_note: (p?.condition_note || "").toString(),
+      })),
+      style: {
+        style: parsed.style?.style || "",
+        formality: parsed.style?.formality || "",
+        palette: parsed.style?.palette || "",
+        proportion: parsed.style?.proportion || "",
+        fit_overall: parsed.style?.fit_overall || "",
+        season: parsed.style?.season || "",
+      },
       works: parsed.works ?? [],
       improve: parsed.improve ?? [],
       swap_suggestion: parsed.swap_suggestion || "",
