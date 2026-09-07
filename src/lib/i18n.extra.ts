@@ -44,6 +44,10 @@ export const EXTRA: Record<string, Record<string, string>> = {
     "wardrobe.delete": "Delete",
     "wardrobe.removed": "Item removed",
     "wardrobe.saved": "Saved",
+    "wardrobe.tagging": "Detecting",
+    "wardrobe.addedSuffix": "items added",
+    "wardrobe.uploadError": "Could not process that photo",
+    "wardrobe.emptyHint": "Photograph a whole pile or a full look — every garment is detected and cut out separately.",
 
     "check.title": "Second opinion",
     "check.subtitle": "Kind, practical feedback — never about your body.",
@@ -193,6 +197,10 @@ export const EXTRA: Record<string, Record<string, string>> = {
     "wardrobe.delete": "Elimina",
     "wardrobe.removed": "Capo eliminato",
     "wardrobe.saved": "Salvato",
+    "wardrobe.tagging": "Rilevamento",
+    "wardrobe.addedSuffix": "capi aggiunti",
+    "wardrobe.uploadError": "Non riesco a elaborare questa foto",
+    "wardrobe.emptyHint": "Fotografa anche più capi insieme o un look intero: ogni indumento viene rilevato e ritagliato dallo sfondo.",
 
     "check.title": "Secondo parere",
     "check.subtitle": "Consigli gentili e pratici — mai sul tuo corpo.",
@@ -342,6 +350,10 @@ export const EXTRA: Record<string, Record<string, string>> = {
     "wardrobe.delete": "Löschen",
     "wardrobe.removed": "Teil gelöscht",
     "wardrobe.saved": "Gespeichert",
+    "wardrobe.tagging": "Erkennung",
+    "wardrobe.addedSuffix": "Teile hinzugefügt",
+    "wardrobe.uploadError": "Dieses Foto konnte nicht verarbeitet werden",
+    "wardrobe.emptyHint": "Fotografiere mehrere Teile oder ein ganzes Outfit — jedes Kleidungsstück wird erkannt und freigestellt.",
 
     "check.title": "Zweite Meinung",
     "check.subtitle": "Freundliches, praktisches Feedback — nie über deinen Körper.",
@@ -491,6 +503,10 @@ export const EXTRA: Record<string, Record<string, string>> = {
     "wardrobe.delete": "Supprimer",
     "wardrobe.removed": "Pièce supprimée",
     "wardrobe.saved": "Enregistré",
+    "wardrobe.tagging": "Détection",
+    "wardrobe.addedSuffix": "pièces ajoutées",
+    "wardrobe.uploadError": "Impossible de traiter cette photo",
+    "wardrobe.emptyHint": "Photographiez plusieurs pièces ou une tenue entière : chaque vêtement est détecté et détouré.",
 
     "check.title": "Deuxième avis",
     "check.subtitle": "Des retours bienveillants et pratiques — jamais sur votre corps.",

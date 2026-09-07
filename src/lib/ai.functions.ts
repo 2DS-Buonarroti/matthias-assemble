@@ -129,7 +129,86 @@ export const analyzeGarment = createServerFn({ method: "POST" })
 
   });
 
+/* --------------------------- multi-garment detection -------------------------- */
+
+export type DetectedGarment = GarmentAnalysis & {
+  /** Normalized 0..1 crop box of this garment inside the source photo. */
+  box: { x: number; y: number; width: number; height: number };
+};
+
+function clamp01(n: number) {
+  return Math.min(1, Math.max(0, n));
+}
+
+export const detectGarments = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({ imageDataUrl: z.string().min(20), language: z.string().default("English") })
+      .parse(d),
+  )
+  .handler(async ({ data }): Promise<DetectedGarment[]> => {
+    const raw = await callGateway([
+      {
+        role: "system",
+        content: `Write "name" and "subtype" in ${data.language}. Keep category, seasons and formality values in English exactly as specified.`,
+      },
+      {
+        role: "system",
+        content:
+          "You detect EVERY distinct clothing item, pair of shoes, bag or accessory visible in a photo " +
+          "(flat lays, hangers, piles, or a person wearing them) and tag each one for a digital wardrobe. " +
+          "Reply with ONLY a JSON array, no prose. One object per garment, max 12. " +
+          'Each object: {"box_2d":[ymin,xmin,ymax,xmax] integers 0-1000 tightly around that single garment,' +
+          '"name":string,"category":one of ["top","bottom","dress","outerwear","shoes","bag","accessory","other"],' +
+          '"subtype":string,"primary_color":string,"color_hex":"#RRGGBB","pattern":string,"material":string,' +
+          '"seasons":array of ["spring","summer","autumn","winter"],"formality":one of ["casual","smart casual","work","formal","evening","sport"],' +
+          '"tags":array of 3-6 short lowercase keywords}. ' +
+          "Never merge two garments into one box. Ignore people, faces, hangers, furniture and background objects.",
+      },
+      {
+        role: "user",
+        content: [
+          { type: "text", text: "Detect and tag every garment in this photo." },
+          { type: "image_url", image_url: { url: data.imageDataUrl } },
+        ],
+      },
+    ]);
+
+    const parsed = parseJson<Array<Partial<GarmentAnalysis> & { box_2d?: number[] }>>(raw);
+    const list = Array.isArray(parsed) ? parsed : [parsed];
+
+    return list.slice(0, 12).map((g) => {
+      const b = Array.isArray(g.box_2d) && g.box_2d.length === 4 ? g.box_2d.map(Number) : [0, 0, 1000, 1000];
+      const y0 = clamp01(Math.min(b[0]!, b[2]!) / 1000);
+      const x0 = clamp01(Math.min(b[1]!, b[3]!) / 1000);
+      const y1 = clamp01(Math.max(b[0]!, b[2]!) / 1000);
+      const x1 = clamp01(Math.max(b[1]!, b[3]!) / 1000);
+      return {
+        name: g.name || "Wardrobe item",
+        category: normalizeCategory(g.category),
+        subtype: g.subtype || "",
+        primary_color: (g.primary_color || "").toLowerCase(),
+        color_hex: /^#[0-9a-f]{6}$/i.test(g.color_hex ?? "") ? g.color_hex! : "#B0B0B0",
+        pattern: (g.pattern || "solid").toLowerCase(),
+        material: (g.material || "").toLowerCase(),
+        seasons: Array.isArray(g.seasons)
+          ? g.seasons.map((s) => String(s).toLowerCase()).filter((s) => SEASONS.includes(s))
+          : [],
+        formality: (g.formality || "casual").toLowerCase(),
+        tags: Array.isArray(g.tags) ? g.tags.map((t) => String(t).toLowerCase()).slice(0, 6) : [],
+        box: {
+          x: x0,
+          y: y0,
+          width: Math.max(0.05, x1 - x0),
+          height: Math.max(0.05, y1 - y0),
+        },
+      };
+    });
+  });
+
 /* ------------------------------ recommendations ----------------------------- */
+
 
 const ItemSchema = z.object({
   id: z.string(),

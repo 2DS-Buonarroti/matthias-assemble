@@ -22,10 +22,10 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useRequireAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { analyzeGarment } from "@/lib/ai.functions";
+import { detectGarments } from "@/lib/ai.functions";
+import { cropToDataUrl, cutout } from "@/lib/cutout";
 import {
   CATEGORIES,
-  dataUrlToBlob,
   fileToDataUrl,
   useImageUrls,
   useWardrobe,
@@ -55,7 +55,7 @@ export const Route = createFileRoute("/wardrobe")({
 function WardrobePage() {
   const { session } = useRequireAuth();
   const qc = useQueryClient();
-  const analyze = useServerFn(analyzeGarment);
+  const detect = useServerFn(detectGarments);
   const { data: items = [], isLoading } = useWardrobe(!!session);
   const { data: urls = {} } = useImageUrls(items.map((i) => i.image_path));
 
@@ -72,25 +72,33 @@ function WardrobePage() {
     const list = Array.from(files).filter((f) => f.type.startsWith("image/"));
     if (!list.length || !session) return;
     setUploading({ done: 0, total: list.length });
+    let added = 0;
 
     for (let i = 0; i < list.length; i++) {
       const file = list[i]!;
       try {
         const dataUrl = await fileToDataUrl(file);
-        const analysis = await analyze({ data: { imageDataUrl: dataUrl, language: aiLanguage } });
-        const path = `${session.user.id}/${crypto.randomUUID()}.jpg`;
-        const { error: upErr } = await supabase.storage
-          .from("wardrobe")
-          .upload(path, dataUrlToBlob(dataUrl), { contentType: "image/jpeg" });
-        if (upErr) throw upErr;
-        const { error } = await supabase.from("wardrobe_items").insert({
-          user_id: session.user.id,
-          image_path: path,
-          ...analysis,
-        });
-        if (error) throw error;
+        const garments = await detect({ data: { imageDataUrl: dataUrl, language: aiLanguage } });
+
+        for (const garment of garments) {
+          const { box, ...analysis } = garment;
+          const crop = await cropToDataUrl(dataUrl, box);
+          const blob = await cutout(crop);
+          const path = `${session.user.id}/${crypto.randomUUID()}.png`;
+          const { error: upErr } = await supabase.storage
+            .from("wardrobe")
+            .upload(path, blob, { contentType: "image/png" });
+          if (upErr) throw upErr;
+          const { error } = await supabase.from("wardrobe_items").insert({
+            user_id: session.user.id,
+            image_path: path,
+            ...analysis,
+          });
+          if (error) throw error;
+          added++;
+        }
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Could not add that photo");
+        toast.error(err instanceof Error ? err.message : tr("wardrobe.uploadError"));
       }
       setUploading({ done: i + 1, total: list.length });
     }
@@ -98,7 +106,7 @@ function WardrobePage() {
     setUploading(null);
     qc.invalidateQueries({ queryKey: ["wardrobe"] });
     qc.invalidateQueries({ queryKey: ["signed-urls"] });
-    toast.success(`Added ${list.length} item${list.length > 1 ? "s" : ""} to your wardrobe.`);
+    if (added) toast.success(`${added} · ${tr("wardrobe.addedSuffix")}`);
   }
 
   async function remove(item: WardrobeItem) {
@@ -143,7 +151,7 @@ function WardrobePage() {
           {uploading ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Tagging {uploading.done}/{uploading.total}
+              {tr("wardrobe.tagging")} {uploading.done}/{uploading.total}
             </>
           ) : (
             <>
@@ -211,7 +219,7 @@ function WardrobePage() {
         <div className="surface px-6 py-16 text-center">
           <h2 className="font-display text-xl">{tr("wardrobe.empty")}</h2>
           <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
-            Add 5–10 favourites to start. Lay each piece flat, snap a photo, and Atelier does the rest.
+            {tr("wardrobe.emptyHint")}
           </p>
         </div>
       ) : (
