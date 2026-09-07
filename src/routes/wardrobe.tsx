@@ -26,7 +26,6 @@ import { detectGarments } from "@/lib/ai.functions";
 import { cropToDataUrl, cutout } from "@/lib/cutout";
 import {
   CATEGORIES,
-  dataUrlToBlob,
   fileToDataUrl,
   useImageUrls,
   useWardrobe,
