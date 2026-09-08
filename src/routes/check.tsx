@@ -174,7 +174,7 @@ function CheckPage() {
             <Dropzone
               preview={outfitImg}
               onFile={(f) => pick(f, setOutfitImg)}
-              label="Upload a photo of today's outfit"
+              label={t("check.uploadOutfit")}
             />
             <Input
               value={context}
@@ -192,7 +192,42 @@ function CheckPage() {
                   <span className="font-display text-3xl">{outfitResult.score}/10</span>
                   <p className="text-sm">{outfitResult.verdict}</p>
                 </div>
-                {outfitResult.detected.length > 0 && (
+                {outfitResult.pieces.length > 0 ? (
+                  <div className="space-y-2">
+                    <p className="eyebrow">{t("check.pieces")}</p>
+                    <div className="space-y-2">
+                      {outfitResult.pieces.map((p, i) => (
+                        <div key={i} className="rounded-xl border border-border p-3">
+                          <div className="flex flex-wrap items-baseline justify-between gap-2">
+                            <p className="text-sm font-medium">{p.name}</p>
+                            <span className="text-xs capitalize text-muted-foreground">{p.category}</span>
+                          </div>
+                          <div className="mt-1.5 flex flex-wrap gap-1.5">
+                            {[
+                              p.color && `${t("check.colour")}: ${p.color}`,
+                              p.material && `${t("check.fabric")}: ${p.material}`,
+                              p.pattern && `${t("check.pattern")}: ${p.pattern}`,
+                              p.fit && `${t("check.fit")}: ${p.fit}`,
+                              p.size_estimate && `${t("check.size")}: ${p.size_estimate}`,
+                            ]
+                              .filter(Boolean)
+                              .map((chip, k) => (
+                                <span
+                                  key={k}
+                                  className="rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground"
+                                >
+                                  {chip}
+                                </span>
+                              ))}
+                          </div>
+                          {p.condition_note && (
+                            <p className="mt-1.5 text-xs text-muted-foreground">{p.condition_note}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : outfitResult.detected.length > 0 ? (
                   <div className="flex flex-wrap gap-1.5">
                     {outfitResult.detected.map((d, i) => (
                       <span
@@ -203,7 +238,32 @@ function CheckPage() {
                       </span>
                     ))}
                   </div>
-                )}
+                ) : null}
+
+                {(() => {
+                  const rows = [
+                    [t("check.styleLabel"), outfitResult.style.style],
+                    [t("check.formality"), outfitResult.style.formality],
+                    [t("check.palette"), outfitResult.style.palette],
+                    [t("check.proportion"), outfitResult.style.proportion],
+                    [t("check.fitOverall"), outfitResult.style.fit_overall],
+                    [t("check.season"), outfitResult.style.season],
+                  ].filter(([, v]) => !!v);
+                  if (!rows.length) return null;
+                  return (
+                    <div>
+                      <p className="eyebrow mb-1.5">{t("check.styleRead")}</p>
+                      <dl className="grid gap-x-4 gap-y-1 text-sm sm:grid-cols-2">
+                        {rows.map(([k, v]) => (
+                          <div key={k} className="flex gap-1.5">
+                            <dt className="shrink-0 text-muted-foreground">{k}:</dt>
+                            <dd>{v}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </div>
+                  );
+                })()}
                 {outfitResult.works.length > 0 && (
                   <div>
                     <p className="eyebrow mb-1.5">{t("check.works")}</p>
@@ -226,7 +286,7 @@ function CheckPage() {
                 )}
                 {outfitResult.swap_suggestion && (
                   <p className="text-sm text-muted-foreground">
-                    Swap idea — {outfitResult.swap_suggestion}
+                    {t("check.swap")} — {outfitResult.swap_suggestion}
                   </p>
                 )}
                 {outfitResult.alternatives.length > 0 && (
@@ -246,7 +306,7 @@ function CheckPage() {
             <Dropzone
               preview={buyImg}
               onFile={(f) => pick(f, setBuyImg)}
-              label="Upload the item you're considering"
+              label={t("check.uploadItem")}
             />
             <Button onClick={reviewPurchase} disabled={!buyImg || busy} className="w-full">
               {busy ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
@@ -268,7 +328,7 @@ function CheckPage() {
                 )}
                 {buyResult.already_similar.length > 0 && (
                   <p className="text-sm text-muted-foreground">
-                    You already own something similar: {buyResult.already_similar.join(", ")}
+                    {t("check.alreadyOwn")} {buyResult.already_similar.join(", ")}
                   </p>
                 )}
               </div>
